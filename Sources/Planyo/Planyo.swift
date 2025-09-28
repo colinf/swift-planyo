@@ -58,6 +58,7 @@ public struct PlanyoAPI {
     do {
       planyoResponse = try decoder.decode(PlanyoResponse.self, from: data)
     } catch {
+      logger.debug("Failed to decode \(String(buffer: data))")
       fatalError("Failed to decode JSON response: \(error)")
     }
     if planyoResponse.responseCode != 0 {
