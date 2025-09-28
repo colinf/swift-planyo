@@ -4,21 +4,31 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-planyo",
-    products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "swift-planyo",
-            targets: ["swift-planyo"]),
-    ],
-    targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-        .target(
-            name: "swift-planyo"),
-        .testTarget(
-            name: "swift-planyoTests",
-            dependencies: ["swift-planyo"]
-        ),
-    ]
+  name: "swift-planyo",
+  platforms: [.macOS(.v15)],
+  products: [
+    // Products define the executables and libraries a package produces, making them visible to other packages.
+    .library(
+      name: "Planyo",
+      targets: ["Planyo"]),
+  ],
+  dependencies: [
+    .package(url: "https://github.com/apple/swift-crypto.git", .upToNextMajor(from: "3.15.1")),
+    .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.9.0"),
+  ],
+  targets: [
+    // Targets are the basic building blocks of a package, defining a module or a test suite.
+    // Targets can depend on other targets in this package and products from dependencies.
+    .target(
+      name: "Planyo",
+      dependencies: [
+        .product(name: "Crypto", package: "swift-crypto"),
+        .product(name: "AsyncHTTPClient", package: "async-http-client")
+      ],
+    ),
+    .testTarget(
+      name: "swift-planyoTests",
+      dependencies: ["Planyo"]
+    ),
+  ]
 )
