@@ -12,6 +12,10 @@ struct PlanyoResponse<T: Decodable>: Decodable {
   let responseMessage: String
 }
 
+struct ListData: Decodable {
+  let results: [Reservation]
+}
+
 public struct Reservation: Decodable {
   enum CodingKeys: String, CodingKey {
     case reservationId, firstName, lastName, creationTime, startTime, endTime, email, status, phoneNumber, totalPrice, amountPaid, properties, adminNotes, userNotes, regularProducts

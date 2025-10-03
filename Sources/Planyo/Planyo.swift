@@ -39,27 +39,59 @@ public struct PlanyoAPI {
     self.logger = logger
   }
   
+ /// Retrieves a list of reservations within the given date range.
+ ///
+ /// Use this method to fetch multiple reservations from the Planyo API
+ /// between a specified start and end date.
+ ///
+ /// - Parameters:
+ ///   - start: The start date in unix time for the reservation query.
+ ///   - end: The end date in unix time for the reservation query.
+ ///
+ /// - Returns: An array of ``Reservation`` objects matching the criteria.
+ ///
+ /// - Throws: An error if the request fails, the Planyo response cannot be
+ ///   decoded, or the Planyo API returns an error status.
+ ///
+  public func listReservations(start: Int, end: Int) async throws -> [Reservation] {
+    var endpoint = Endpoint(queryItems: [])
+    endpoint.queryItems.append(URLQueryItem(name: "method", value: "get_reservation_data"))
+    endpoint.queryItems.append(URLQueryItem(name: "start_time", value: String(start)))
+    endpoint.queryItems.append(URLQueryItem(name: "end_time", value: String(end)))
+    endpoint.queryItems.append(URLQueryItem(name: "detail_level", value: "71"))
+    let data = try await fetchResource(endpoint: &endpoint)
+    let decoder = getJSONDecoder()
+    
+    var planyoResponse: PlanyoResponse<ListData>
+    
+    do {
+      planyoResponse = try decoder.decode(PlanyoResponse.self, from: data)
+    } catch {
+      logger.debug("Decode error: \(error)")
+      throw PlanyoError.planyoError(message: "Failed to decode planyo json data")
+    }
+    if planyoResponse.responseCode != 0 {
+      throw PlanyoError.planyoError(message: planyoResponse.responseMessage)
+    }
+    return planyoResponse.data.results
+
+  }
+  
   public func getReservation(id: Int) async throws -> Reservation {
     var endpoint = Endpoint(queryItems: [])
     endpoint.queryItems.append(URLQueryItem(name: "method", value: "get_reservation_data"))
     endpoint.queryItems.append(URLQueryItem(name: "reservation_id", value: String(id)))
     let data = try await fetchResource(endpoint: &endpoint)
     logger.debug("Fetched reservation data: \(String(buffer: data))")
-    let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .convertFromSnakeCase
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-    dateFormatter.locale = Locale(identifier: "en_GB")
-    dateFormatter.timeZone = TimeZone(identifier: "Europe/London")
-    decoder.dateDecodingStrategy = .formatted(dateFormatter)
+    let decoder = getJSONDecoder()
     
     var planyoResponse: PlanyoResponse<Reservation>
     
     do {
       planyoResponse = try decoder.decode(PlanyoResponse.self, from: data)
     } catch {
-      logger.debug("Failed to decode \(String(buffer: data))")
-      fatalError("Failed to decode JSON response: \(error)")
+      logger.debug("Decode error: \(error)")
+      throw PlanyoError.planyoError(message: "Failed to decode planyo json data")
     }
     if planyoResponse.responseCode != 0 {
       throw PlanyoError.planyoError(message: planyoResponse.responseMessage)
@@ -98,6 +130,17 @@ public struct PlanyoAPI {
     let body = try await response.body.collect(upTo: 1024 * 1024)
     
     return body
+  }
+  
+  private func getJSONDecoder() -> JSONDecoder {
+    let decoder = JSONDecoder()
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+    dateFormatter.locale = Locale(identifier: "en_GB")
+    dateFormatter.timeZone = TimeZone(identifier: "Europe/London")
+    decoder.dateDecodingStrategy = .formatted(dateFormatter)
+    return decoder
   }
   
 }

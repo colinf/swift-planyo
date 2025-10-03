@@ -1,0 +1,7 @@
+{
+  "extension" : {
+    "identifier" : "net.marquiskurt.spm-tasks",
+    "name" : "Swift Tasks"
+  },
+  "extensionTemplate" : "swiftBuild"
+}
