@@ -26,7 +26,7 @@ extension Endpoint {
     return components.url
   }
 }
-public struct PlanyoAPI {
+public struct PlanyoAPI: Sendable {
   let siteId: String
   let apiKey: String
   let hashKey: String
