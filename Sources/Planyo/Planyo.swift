@@ -55,7 +55,7 @@ public struct PlanyoAPI: Sendable {
  ///
   public func listReservations(start: Int, end: Int) async throws -> [Reservation] {
     var endpoint = Endpoint(queryItems: [])
-    endpoint.queryItems.append(URLQueryItem(name: "method", value: "get_reservation_data"))
+    endpoint.queryItems.append(URLQueryItem(name: "method", value: "list_reservations"))
     endpoint.queryItems.append(URLQueryItem(name: "start_time", value: String(start)))
     endpoint.queryItems.append(URLQueryItem(name: "end_time", value: String(end)))
     endpoint.queryItems.append(URLQueryItem(name: "detail_level", value: "71"))
