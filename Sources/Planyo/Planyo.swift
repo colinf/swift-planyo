@@ -67,7 +67,7 @@ public struct PlanyoAPI: Sendable {
     do {
       planyoResponse = try decoder.decode(PlanyoResponse.self, from: data)
     } catch {
-      logger.debug("Decode error: \(error)")
+      logger.error("Decode error: \(error)")
       throw PlanyoError.planyoError(message: "Failed to decode planyo json data")
     }
     if planyoResponse.responseCode != 0 {
@@ -129,6 +129,7 @@ public struct PlanyoAPI: Sendable {
     
     let body = try await response.body.collect(upTo: 1024 * 1024)
     
+    logger.debug("Response body: \(body)")
     return body
   }
   
