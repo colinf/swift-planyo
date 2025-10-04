@@ -60,6 +60,8 @@ public struct PlanyoAPI: Sendable {
     endpoint.queryItems.append(URLQueryItem(name: "end_time", value: String(end)))
     endpoint.queryItems.append(URLQueryItem(name: "detail_level", value: "71"))
     let data = try await fetchResource(endpoint: &endpoint)
+    logger.debug("Fetched reservations data: \(String(buffer: data))")
+
     let decoder = getJSONDecoder()
     
     var planyoResponse: PlanyoResponse<ListData>
@@ -129,7 +131,6 @@ public struct PlanyoAPI: Sendable {
     
     let body = try await response.body.collect(upTo: 1024 * 1024)
     
-    logger.debug("Response body: \(body)")
     return body
   }
   
